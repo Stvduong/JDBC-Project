@@ -18,7 +18,6 @@ public class CECS323JavaTermProject {
     //The number indicates how wide to make the field.
     //The "s" denotes that it's a string.  All of our output in this test are 
     //strings, but that won't always be the case.
-    static final String displayFormat="%-45s%-15s%-20s%-25s%-15s\n";
 // JDBC driver name and database URL
     static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
     static String DB_URL = "jdbc:derby://localhost:1527/";
@@ -42,7 +41,8 @@ public class CECS323JavaTermProject {
         //remove that from the connection string.
         Scanner in = new Scanner(System.in);
         System.out.print("Name of the database (not the user account): ");
-        DBNAME = in.nextLine();
+        //DBNAME = in.nextLine();
+        DBNAME = "JDBC Project";
         //Constructing the database URL connection string
         DB_URL = DB_URL + DBNAME; //+ ";user="+ USER + ";password=" + PASS;
         Connection conn = null; //initialize the connection
@@ -56,32 +56,93 @@ public class CECS323JavaTermProject {
             conn = DriverManager.getConnection(DB_URL);
 
             //STEP 4: Execute a query
-            System.out.println("Creating statement...");
-            stmt = conn.createStatement();
-            String sql;
-            sql = "SELECT au_id, au_fname, au_lname, phone FROM Authors";
-            //ResultSet rs = stmt.executeQuery(sql);
-            //Testing prepared statements
-            PreparedStatement pstmt = conn.prepareStatement("SELECT booktitle, yearpublished, groupname, publishername, numberpages FROM BOOK");
-            ResultSet rs = pstmt.executeQuery();
+            System.out.println("Connected to the JDBC Project Database");
+            System.out.println("Enter 1 to display Book Table, 2 to display Publisher Table, 3 to display Writing Group Table, 0 to Exit"); //Options loop.
+            int option = 1;
+            while (option != 0)
+            {
+                option = in.nextInt();
+                if (option == 1) //listing Book table
+                {
+                    String displayFormat="%-45s%-15s%-20s%-25s%-15s\n";
+                    stmt = conn.createStatement();
+                    //Testing prepared statements
+                    PreparedStatement pstmt = conn.prepareStatement("SELECT booktitle, yearpublished, groupname, publishername, numberpages FROM BOOK");
+                    ResultSet rs = pstmt.executeQuery();
 
-            //STEP 5: Extract data from result set
-            System.out.printf(displayFormat, "Title", "Year Published", "Group Name", "Publisher", "Pages");
-            while (rs.next()) {
-                //Retrieve by column name
-                String title = rs.getString("booktitle");
-                String year = rs.getString("yearpublished");
-                String group = rs.getString("groupname");
-                String publisher = rs.getString("publishername");
-                String pages = rs.getString("numberpages");
+                    //STEP 5: Extract data from result set
+                    System.out.println(); //blank line for formatting
+                    System.out.printf(displayFormat, "Title", "Year Published", "Group Name", "Publisher", "Pages");
+                    while (rs.next()) {
+                        //Retrieve by column name
+                        String title = rs.getString("booktitle");
+                        String year = rs.getString("yearpublished");
+                        String group = rs.getString("groupname");
+                        String publisher = rs.getString("publishername");
+                        String pages = rs.getString("numberpages");
 
-                //Display values
-                System.out.printf(displayFormat, 
-                        dispNull(title), dispNull(year), dispNull(group), dispNull(publisher), dispNull(pages));
-            }
-            //STEP 6: Clean-up environment
-            rs.close();
-            stmt.close();
+                        //Display values
+                        System.out.printf(displayFormat, 
+                                dispNull(title), dispNull(year), dispNull(group), dispNull(publisher), dispNull(pages));
+                     }
+                        rs.close();
+                        pstmt.close();
+                    System.out.println(); //blank line for formatting
+                    System.out.println("Enter 1 to display Book Table, 2 to display Publisher Table, 3 to display Writing Group Table, 0 to Exit"); //continue the option loop.
+                }
+                
+                if (option == 2) //listing Publisher table
+                {
+                    String displayFormat="%-25s%-50s%-20s%-50s\n";
+                    stmt = conn.createStatement();
+                    PreparedStatement pstmt = conn.prepareStatement("SELECT publishername, publisheraddress, publisherphone, publisheremail FROM publisher");
+                    ResultSet rs = pstmt.executeQuery();
+
+                    //STEP 5: Extract data from result set
+                    System.out.printf(displayFormat, "Publisher Name", "Publisher Address", "Publisher Phone", "Publisher Email");
+                    while (rs.next()) {
+                        //Retrieve by column name
+                        String publisherName = rs.getString("publishername");
+                        String publisherAddress = rs.getString("publisheraddress");
+                        String publisherPhone = rs.getString("publisherphone");
+                        String publisherEmail = rs.getString("publisheremail");
+
+                        //Display values
+                        System.out.printf(displayFormat, 
+                                dispNull(publisherName), dispNull(publisherAddress), dispNull(publisherPhone), dispNull(publisherEmail));
+                    }
+                    rs.close();
+                    pstmt.close();
+                    System.out.println(); //blank line for formatting
+                    System.out.println("Enter 1 to display Book Table, 2 to display Publisher Table, 3 to display Writing Group Table, 0 to Exit"); //continue the option loop.
+                }
+                if (option == 3) //listing Writinggroup table
+                {
+                    String displayFormat="%-25s%-25s%-15s%-10s\n";
+                    stmt = conn.createStatement();
+                    PreparedStatement pstmt = conn.prepareStatement("SELECT groupname, headwriter, yearformed, subject FROM writinggroup");
+                    ResultSet rs = pstmt.executeQuery();
+
+                    //STEP 5: Extract data from result set
+                    System.out.printf(displayFormat, "Group Name", "Head Writer", "Year Formed", "Subject");
+                    while (rs.next()) {
+                        //Retrieve by column name
+                        String groupName = rs.getString("groupname");
+                        String headWriter = rs.getString("headwriter");
+                        String yearFormed = rs.getString("yearformed");
+                        String subject = rs.getString("subject");
+
+                        //Display values
+                        System.out.printf(displayFormat, 
+                                dispNull(groupName), dispNull(headWriter), dispNull(yearFormed), dispNull(subject));
+                    }
+                    rs.close();
+                    pstmt.close();
+                    System.out.println(); //blank line for formatting
+                    System.out.println("Enter 1 to display Book Table, 2 to display Publisher Table, 3 t0 display Writing Group Table, 0 to Exit"); //continue the option loop.
+                }
+            }// end while loop for Options
+            //Shut down connection to database.
             conn.close();
         } catch (SQLException se) {
             //Handle errors for JDBC
